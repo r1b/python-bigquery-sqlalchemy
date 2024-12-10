@@ -70,15 +70,15 @@ def _col():
             # TODO: why?
             # https://github.com/googleapis/python-bigquery-sqlalchemy/issues/336
             _col().children[0].label("anon_1"),
-            "(`t`.`person`.children)[OFFSET(%(param_1:INT64)s)]",
+            "`t`.`person`.children[OFFSET(%(param_1:INT64)s)]",
         ),
         (
             _col().children[0]["bdate"],
-            "((`t`.`person`.children)[OFFSET(%(param_1:INT64)s)]).bdate",
+            "`t`.`person`.children[OFFSET(%(param_1:INT64)s)].bdate",
         ),
         (
             _col().children[0].bdate,
-            "((`t`.`person`.children)[OFFSET(%(param_1:INT64)s)]).bdate",
+            "`t`.`person`.children[OFFSET(%(param_1:INT64)s)].bdate",
         ),
     ],
 )
@@ -90,27 +90,27 @@ def test_struct_traversal_project(faux_conn, expr, sql):
 @pytest.mark.parametrize(
     "expr,sql",
     [
-        (_col()["name"] == "x", "(`t`.`person`.name) = %(param_1:STRING)s"),
-        (_col()["Name"] == "x", "(`t`.`person`.Name) = %(param_1:STRING)s"),
-        (_col().NAME == "x", "(`t`.`person`.NAME) = %(param_1:STRING)s"),
+        (_col()["name"] == "x", "`t`.`person`.name = %(param_1:STRING)s"),
+        (_col()["Name"] == "x", "`t`.`person`.Name = %(param_1:STRING)s"),
+        (_col().NAME == "x", "`t`.`person`.NAME = %(param_1:STRING)s"),
         (
             _col().children[0] == dict(name="foo", bdate=datetime.date(2020, 1, 1)),
-            "(`t`.`person`.children)[OFFSET(%(param_1:INT64)s)]"
+            "`t`.`person`.children[OFFSET(%(param_1:INT64)s)]"
             " = %(param_2:STRUCT<name STRING, bdate DATE>)s",
         ),
         (
             _col().children[0] == dict(name="foo", bdate=datetime.date(2020, 1, 1)),
-            "(`t`.`person`.children)[OFFSET(%(param_1:INT64)s)]"
+            "`t`.`person`.children[OFFSET(%(param_1:INT64)s)]"
             " = %(param_2:STRUCT<name STRING, bdate DATE>)s",
         ),
         (
             _col().children[0]["bdate"] == datetime.date(2021, 8, 30),
-            "(((`t`.`person`.children)[OFFSET(%(param_1:INT64)s)]).bdate)"
+            "`t`.`person`.children[OFFSET(%(param_1:INT64)s)].bdate"
             " = %(param_2:DATE)s",
         ),
         (
             _col().children[0].bdate == datetime.date(2021, 8, 30),
-            "(((`t`.`person`.children)[OFFSET(%(param_1:INT64)s)]).bdate)"
+            "`t`.`person`.children[OFFSET(%(param_1:INT64)s)].bdate"
             " = %(param_2:DATE)s",
         ),
     ],

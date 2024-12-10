@@ -190,7 +190,7 @@ class BigQueryExecutionContext(DefaultExecutionContext):
         )
 
 
-class BigQueryCompiler(_struct.SQLCompiler, vendored_postgresql.PGCompiler):
+class BigQueryCompiler(vendored_postgresql.PGCompiler):
     compound_keywords = SQLCompiler.compound_keywords.copy()
     compound_keywords[selectable.CompoundSelect.UNION] = "UNION DISTINCT"
     compound_keywords[selectable.CompoundSelect.UNION_ALL] = "UNION ALL"
@@ -568,6 +568,8 @@ class BigQueryCompiler(_struct.SQLCompiler, vendored_postgresql.PGCompiler):
 
     def visit_getitem_binary(self, binary, operator_, **kw):
         left = self.process(binary.left, **kw)
+        if binary.left.type._type_affinity is _struct.STRUCT:
+            return f"{left}.{binary.right.value}"
         right = self.process(binary.right, **kw)
         return f"{left}[OFFSET({right})]"
 

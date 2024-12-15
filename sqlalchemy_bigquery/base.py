@@ -586,6 +586,22 @@ class BigQueryCompiler(_struct.SQLCompiler, vendored_postgresql.PGCompiler):
     def visit_mod_binary(self, binary, operator, **kw):
         return f"MOD({self.process(binary.left, **kw)}, {self.process(binary.right, **kw)})"
 
+    def visit_aggregate_function_call(self, element, **kw):
+        target_text = self.process(element.target, **kw)
+        if element.ignore_nulls is True:
+            nulls_text = " IGNORE NULLS"
+        else:
+            nulls_text = ""
+        if element.order_by is not None:
+            order_by_text = " ORDER BY " + self.process(element.order_by, **kw)
+        else:
+            order_by_text = ""
+        if element.limit is not None:
+            limit_text = " LIMIT " + self.process(element.limit)
+        else:
+            limit_text = ""
+        return f"{target_text}{nulls_text}{order_by_text}{limit_text}"
+
 
 class BigQueryTypeCompiler(GenericTypeCompiler):
     def visit_INTEGER(self, type_, **kw):

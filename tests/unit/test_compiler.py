@@ -417,3 +417,25 @@ def test_complex_grouping_ops_vs_nested_grouping_ops(
     )
 
     assert found_sql == expected_sql
+
+
+def test_aggregate_function_call_kitchen_sink(faux_conn, table):
+    from sqlalchemy_bigquery import aggregate_function_call
+
+    q = sqlalchemy.select(
+        sqlalchemy.func.array_agg(
+            aggregate_function_call(
+                table.c.foo.distinct(),
+                ignore_nulls=True,
+                order_by=[table.c.foo.desc()],
+                limit=42,
+            )
+        )
+    )
+    found_sql = q.compile(faux_conn).string
+    expected_sql = (
+        "SELECT array_agg(DISTINCT `table1`.`foo` IGNORE NULLS ORDER BY `table1`.`foo` DESC LIMIT %(param_1:INT64)s) AS `array_agg_1` \n"
+        "FROM `table1`"
+    )
+
+    assert found_sql == expected_sql

@@ -25,6 +25,7 @@ import warnings
 from .version import __version__
 
 from .base import BigQueryDialect, dialect
+from .ext import aggregate_function_call
 from ._types import (
     ARRAY,
     BIGNUMERIC,
@@ -61,6 +62,7 @@ if sys_major == 3 and sys_minor in (7, 8):
 
 __all__ = [
     "__version__",
+    "aggregate_function_call",
     "dialect",
     "ARRAY",
     "BIGNUMERIC",
